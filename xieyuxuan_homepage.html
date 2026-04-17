@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>谢雨萱 | AI 产品经理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --bg:#05070f;
+      --bg2:#0b1020;
+      --neon1:#00f5ff;
+      --neon2:#7c4dff;
+      --neon3:#00ffa3;
+      --text:#e7f6ff;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      background: radial-gradient(circle at 20% 20%, #111830 0%, var(--bg) 45%, #020308 100%);
+      color:var(--text);
+      font-family: "Inter","PingFang SC","Microsoft YaHei",sans-serif;
+      scroll-behavior:smooth;
+      overflow-x:hidden;
+    }
+
+    #particle-canvas{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      opacity:.75;
+      pointer-events:none;
+    }
+    .cyber-grid{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background:
+        linear-gradient(rgba(0,245,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,77,255,.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(circle at 50% 30%, black 30%, transparent 80%);
+      animation: gridMove 22s linear infinite;
+    }
+    @keyframes gridMove {
+      from { transform: translateY(0px); }
+      to { transform: translateY(40px); }
+    }
+    .content{ position:relative; z-index:2; }
+    .glow-title{
+      background: linear-gradient(90deg, var(--neon1), #d8f8ff, var(--neon2), var(--neon3));
+      background-size: 250% 100%;
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-shadow: 0 0 20px rgba(0,245,255,.45), 0 0 40px rgba(124,77,255,.25);
+      animation: gradientFlow 6s ease infinite;
+      letter-spacing: .04em;
+    }
+    .glass{
+      position:relative;
+      background: linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 8px 40px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 1.25rem;
+      overflow:hidden;
+    }
+    .glass::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius:inherit;
+      background: conic-gradient(from var(--angle), transparent 10%, rgba(0,245,255,.9), transparent 35%, rgba(124,77,255,.8), transparent 65%, rgba(0,255,163,.9), transparent 90%);
+      filter: blur(14px);
+      opacity:.6;
+      z-index:-1;
+      animation: spin 6s linear infinite;
+    }
+    .chip{
+      background: linear-gradient(135deg, rgba(0,245,255,.16), rgba(124,77,255,.12));
+      border:1px solid rgba(134,220,255,.35);
+      color:#d9f6ff;
+      border-radius:9999px;
+      padding:.45rem .85rem;
+      font-size:.85rem;
+      transition: all .25s ease;
+      box-shadow: 0 0 0 rgba(0,245,255,0);
+      white-space:nowrap;
+    }
+    .chip:hover{
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 18px rgba(0,245,255,.35);
+      border-color: rgba(0,245,255,.8);
+    }
+    .detail-btn{
+      display:inline-block;
+      margin-top:.9rem;
+      padding:.45rem .95rem;
+      border-radius:9999px;
+      border:1px solid rgba(0,245,255,.55);
+      background: linear-gradient(135deg, rgba(0,245,255,.2), rgba(124,77,255,.2));
+      color:#dcf8ff;
+      font-size:.82rem;
+      letter-spacing:.03em;
+      text-decoration:none;
+      transition: all .25s ease;
+      box-shadow: 0 0 0 rgba(0,245,255,0);
+    }
+    .detail-btn:hover{
+      transform: translateY(-2px);
+      border-color: rgba(0,245,255,.95);
+      box-shadow: 0 0 16px rgba(0,245,255,.45), 0 0 24px rgba(124,77,255,.25);
+    }
+    .hover-glow{
+      position:relative;
+      transition: transform .25s ease, box-shadow .25s ease;
+      transform-style: preserve-3d;
+    }
+    .hover-glow::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(0,245,255,.28), transparent 35%);
+      opacity:0;
+      transition: opacity .25s ease;
+      pointer-events:none;
+    }
+    .hover-glow:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 10px 35px rgba(0,245,255,.18), 0 0 22px rgba(124,77,255,.18);
+    }
+    .hover-glow:hover::after{ opacity:1; }
+    .section-title{
+      font-size: clamp(1.15rem, 1rem + 1vw, 1.8rem);
+      font-weight:700;
+      letter-spacing:.04em;
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+    }
+    .section-title::before{
+      content:"";
+      width:12px;
+      height:12px;
+      border-radius:999px;
+      background: linear-gradient(135deg, var(--neon1), var(--neon2));
+      box-shadow: 0 0 12px rgba(0,245,255,.8);
+      flex-shrink:0;
+    }
+    .timeline{ position:relative; padding-left:1.2rem; }
+    .timeline::before{
+      content:"";
+      position:absolute;
+      left:.2rem;
+      top:.3rem;
+      bottom:.3rem;
+      width:2px;
+      background: linear-gradient(var(--neon1), var(--neon2), var(--neon3));
+      opacity:.7;
+    }
+    .timeline-item{ position:relative; margin-bottom:1rem; padding-left:1rem; }
+    .timeline-item::before{
+      content:"";
+      position:absolute;
+      left:-.1rem;
+      top:.2rem;
+      width:.65rem;
+      height:.65rem;
+      border-radius:999px;
+      background: #b8f6ff;
+      box-shadow: 0 0 12px rgba(0,245,255,.9);
+    }
+    .type-wrap{
+      min-height:2rem;
+      font-size:clamp(1rem,.9rem + .6vw,1.3rem);
+      color:#c3f4ff;
+      text-shadow: 0 0 12px rgba(0,245,255,.35);
+      letter-spacing:.04em;
+    }
+    .cursor{ display:inline-block; width:.6ch; animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 0%,50%{opacity:1;} 50.01%,100%{opacity:0;} }
+    .reveal{
+      opacity:0;
+      transform: translateY(26px) scale(.98);
+      transition: all .7s cubic-bezier(.2,.65,.2,1);
+    }
+    .reveal.visible{ opacity:1; transform: translateY(0) scale(1); }
+    .neon-divider{
+      height:1px;
+      width:100%;
+      background: linear-gradient(90deg, transparent, rgba(0,245,255,.85), rgba(124,77,255,.85), transparent);
+      box-shadow: 0 0 14px rgba(0,245,255,.4);
+    }
+    .flow{ animation: gradientFlow 8s ease infinite; background-size:200% 100%; }
+    @keyframes gradientFlow{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    @property --angle{
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
+    @keyframes spin{ to{ --angle:360deg; } }
+  </style>
+</head>
+<body>
+  <canvas id="particle-canvas"></canvas>
+  <div class="cyber-grid"></div>
+
+  <main class="content max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <section class="min-h-[86vh] flex items-center reveal">
+      <div class="glass w-full p-6 sm:p-10 md:p-14 hover-glow">
+        <p class="uppercase tracking-[0.35em] text-xs sm:text-sm text-cyan-200/80 mb-4">AI Product Manager Portfolio</p>
+        <h1 class="glow-title text-4xl sm:text-6xl md:text-7xl font-extrabold mb-4">谢雨萱</h1>
+        <h2 class="text-xl sm:text-2xl md:text-3xl font-semibold text-cyan-100 mb-5">AI 产品经理</h2>
+        <div class="type-wrap mb-6"><span id="typing"></span><span class="cursor">|</span></div>
+        <p class="text-cyan-50/85 leading-relaxed max-w-3xl">聚焦 AI 产品从 0 到 1 的商业化落地，以数据洞察驱动策略，以工作流设计提升组织效率，持续推动风控数字化与 NoCode 产品创新。</p>
+      </div>
+    </section>
+
+    <div class="neon-divider my-10"></div>
+
+    <section class="reveal mb-10">
+      <div class="glass p-6 sm:p-8 hover-glow">
+        <h3 class="section-title mb-5">核心能力</h3>
+        <div class="flex flex-wrap gap-3">
+          <span class="chip">产品0-1落地</span><span class="chip">需求分析</span><span class="chip">PRD</span><span class="chip">项目管理</span><span class="chip">用户研究</span><span class="chip">数据分析</span><span class="chip">业务建模</span><span class="chip">AI Agent</span><span class="chip">Coze智能工作流</span><span class="chip">NoCode</span><span class="chip">风控数字化</span><span class="chip">Python</span><span class="chip">SQL</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal mb-10">
+      <div class="glass p-6 sm:p-8 hover-glow">
+        <h3 class="section-title mb-5">工作经历</h3>
+        <div class="timeline">
+          <div class="timeline-item"><h4 class="text-lg font-semibold text-cyan-100">中粮可口可乐</h4><p class="text-cyan-50/85 mt-1 leading-relaxed">主导积分激励系统0-1搭建，推动全流程产品落地；完成数据打通与可视化建设，驱动终端运营增长。</p></div>
+          <div class="timeline-item"><h4 class="text-lg font-semibold text-cyan-100">北京君君餐饮</h4><p class="text-cyan-50/85 mt-1 leading-relaxed">负责财务核算与财务系统化建设，开展数据分析并支持经营决策优化。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal mb-10">
+      <div class="glass p-6 sm:p-8 hover-glow">
+        <h3 class="section-title mb-5">实习经历</h3>
+        <div class="timeline">
+          <div class="timeline-item"><h4 class="text-lg font-semibold text-cyan-100">德勤中国</h4><p class="text-cyan-50/85 mt-1 leading-relaxed">参与风控数字化转型，协助搭建 AI Agent 智能风控系统，完成风险量化模型验证。</p></div>
+          <div class="timeline-item"><h4 class="text-lg font-semibold text-cyan-100">尼尔森</h4><p class="text-cyan-50/85 mt-1 leading-relaxed">开展智能产品竞品分析、用户研究与数据洞察，支持产品方向判断。</p></div>
+          <div class="timeline-item"><h4 class="text-lg font-semibold text-cyan-100">京东</h4><p class="text-cyan-50/85 mt-1 leading-relaxed">参与需求分析、PRD撰写与项目管理，推动产品按计划上线。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal mb-10">
+      <div class="glass p-6 sm:p-8 hover-glow">
+        <h3 class="section-title mb-5">项目经历</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <article class="glass p-5 hover-glow"><h4 class="text-cyan-100 font-semibold text-lg">《太平年鉴》AI观影插件方案</h4><p class="text-cyan-50/85 mt-2">基于腾讯视频场景设计产品方案，获腾讯未来产品经理训练营优秀作品（50 / 1.5w）。</p><a class="detail-btn" href="file:///C:/Users/Administrator/AppData/Roaming/Cursor/User/workspaceStorage/99703b1e9d88bdee8ac842f0ab1479e5/pdfs/e6200c46-4567-4cf9-a6e0-a4d45ea59eb8/%E5%A4%AA%E5%B9%B3%E5%B9%B4%E9%89%B4-%E5%9F%BA%E4%BA%8E%E5%8E%86%E5%8F%B2%E5%89%A7%E3%80%8A%E5%A4%AA%E5%B9%B3%E5%B9%B4%E3%80%8B%E7%9A%84AI%E5%85%B1%E8%A7%82%E4%B8%8E%E6%96%87%E6%97%85%E5%AF%BC%E8%A7%88%E5%B9%B3%E5%8F%B0.pdf" target="_blank" rel="noopener noreferrer">查看详情</a></article>
+          <article class="glass p-5 hover-glow"><h4 class="text-cyan-100 font-semibold text-lg">Coze智能工作流</h4><p class="text-cyan-50/85 mt-2">实现跨平台信息整合，自动生成结构化知识卡片，提升知识沉淀效率。</p></article>
+          <article class="glass p-5 hover-glow"><h4 class="text-cyan-100 font-semibold text-lg">AR文娱游戏产品</h4><p class="text-cyan-50/85 mt-2">完成产品设计、商业化验证与MVP测试，验证用户价值与增长路径。</p><a class="detail-btn" href="file:///C:/Users/Administrator/AppData/Roaming/Cursor/User/workspaceStorage/99703b1e9d88bdee8ac842f0ab1479e5/pdfs/73643d1f-f983-4933-9e35-c037f1087727/%E3%80%8A%E5%9B%BD%E4%B9%90%E5%B9%BB%E5%A2%83%C2%B7%E7%BC%96%E9%92%9F%E7%AF%87%E3%80%8B%E4%BA%A7%E5%93%81%E8%AF%B4%E6%98%8E%E6%96%87%E6%A1%A3.pdf" target="_blank" rel="noopener noreferrer">查看详情</a></article>
+          <article class="glass p-5 hover-glow"><h4 class="text-cyan-100 font-semibold text-lg">一站式旅游规划</h4><p class="text-cyan-50/85 mt-2">通过 NoCode 快速搭建原型，完成从需求到体验的全链路产品设计。</p><a class="detail-btn" href="https://adventure-fusion-app.nocode.host" target="_blank" rel="noopener noreferrer">查看详情</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal mb-10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="glass p-6 sm:p-8 hover-glow">
+          <h3 class="section-title mb-5">教育背景</h3>
+          <ul class="space-y-3 text-cyan-50/90">
+            <li>北京理工大学 · 工商管理硕士</li>
+            <li>北京语言大学 · 财务管理本科</li>
+          </ul>
+        </div>
+        <div class="glass p-6 sm:p-8 hover-glow">
+          <h3 class="section-title mb-5">证书</h3>
+          <div class="flex flex-wrap gap-3">
+            <span class="chip">ACCA</span><span class="chip">CDA数据分析师</span><span class="chip">AI工程师认证</span><span class="chip">证券从业</span><span class="chip">英语专八</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reveal pb-8">
+      <div class="glass p-6 sm:p-8 hover-glow">
+        <h3 class="section-title mb-5">联系方式</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="glass p-4 flow bg-[linear-gradient(90deg,rgba(0,245,255,.14),rgba(124,77,255,.16),rgba(0,255,163,.14))]">
+            <p class="text-xs tracking-widest text-cyan-200/80 uppercase">Phone</p>
+            <p class="text-lg font-semibold text-cyan-50 mt-1">15632565767</p>
+          </div>
+          <div class="glass p-4 flow bg-[linear-gradient(90deg,rgba(124,77,255,.16),rgba(0,245,255,.14),rgba(0,255,163,.14))]">
+            <p class="text-xs tracking-widest text-cyan-200/80 uppercase">Email</p>
+            <p class="text-lg font-semibold text-cyan-50 mt-1 break-all">13146422799@163.com</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function typewriter(){
+      const lines = [
+        "数据驱动 | 产品0-1落地 | AI工作流 | 风控数字化 | NoCode产品设计",
+        "用洞察定义问题，用产品实现增长。",
+        "让复杂业务，变成可执行的智能流程。"
+      ];
+      const el = document.getElementById("typing");
+      let line = 0, i = 0, deleting = false;
+      function tick(){
+        const txt = lines[line];
+        if(!deleting){
+          i++;
+          el.textContent = txt.slice(0, i);
+          if(i === txt.length){ deleting = true; return setTimeout(tick, 1600); }
+        }else{
+          i--;
+          el.textContent = txt.slice(0, i);
+          if(i === 0){ deleting = false; line = (line + 1) % lines.length; }
+        }
+        setTimeout(tick, deleting ? 35 : 55);
+      }
+      tick();
+    })();
+
+    (function revealOnScroll(){
+      const els = document.querySelectorAll(".reveal");
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){ e.target.classList.add("visible"); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.16 });
+      els.forEach(el=>io.observe(el));
+    })();
+
+    (function cardMouseGlow(){
+      const cards = document.querySelectorAll(".hover-glow");
+      cards.forEach(card=>{
+        card.addEventListener("mousemove", (e)=>{
+          const rect = card.getBoundingClientRect();
+          const x = ((e.clientX - rect.left) / rect.width) * 100;
+          const y = ((e.clientY - rect.top) / rect.height) * 100;
+          card.style.setProperty("--mx", x + "%");
+          card.style.setProperty("--my", y + "%");
+        });
+      });
+    })();
+
+    (function particleBackground(){
+      const canvas = document.getElementById("particle-canvas");
+      const ctx = canvas.getContext("2d");
+      let particles, mouse = {x: -9999, y: -9999};
+      function resize(){
+        canvas.width = window.innerWidth * devicePixelRatio;
+        canvas.height = window.innerHeight * devicePixelRatio;
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+        init();
+      }
+      function init(){
+        const count = Math.min(150, Math.floor(window.innerWidth / 10));
+        particles = Array.from({length: count}).map(()=>({
+          x: Math.random()*window.innerWidth,
+          y: Math.random()*window.innerHeight,
+          vx: (Math.random()-.5)*0.45,
+          vy: (Math.random()-.5)*0.45,
+          r: Math.random()*1.8 + .5
+        }));
+      }
+      function draw(){
+        ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+        for(const p of particles){
+          p.x += p.vx; p.y += p.vy;
+          if(p.x<0 || p.x>window.innerWidth) p.vx *= -1;
+          if(p.y<0 || p.y>window.innerHeight) p.vy *= -1;
+          const dx = p.x - mouse.x, dy = p.y - mouse.y, dist = Math.hypot(dx,dy);
+          if(dist < 120){ p.x += dx / dist * 0.9; p.y += dy / dist * 0.9; }
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+          ctx.fillStyle = "rgba(120,240,255,.85)"; ctx.fill();
+        }
+        for(let i=0;i<particles.length;i++){
+          for(let j=i+1;j<particles.length;j++){
+            const a = particles[i], b = particles[j], d = Math.hypot(a.x-b.x,a.y-b.y);
+            if(d < 110){
+              ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+              const alpha = (1 - d/110) * 0.28;
+              ctx.strokeStyle = `rgba(95,155,255,${alpha})`; ctx.lineWidth = 1; ctx.stroke();
+            }
+          }
+        }
+        requestAnimationFrame(draw);
+      }
+      window.addEventListener("mousemove", (e)=>{ mouse.x = e.clientX; mouse.y = e.clientY; });
+      window.addEventListener("mouseleave", ()=>{ mouse.x = -9999; mouse.y = -9999; });
+      window.addEventListener("resize", resize);
+      resize(); draw();
+    })();
+  </script>
+</body>
+</html>
